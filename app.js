@@ -1,6 +1,5 @@
 const express = require('express')
 require('dotenv').config();
-const router = express.Router();
 const app = express();
 const routes = require('./routes/index');
 
@@ -11,5 +10,5 @@ const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`Person listening at http://localhost:${port}`)
   })
-module.exports = router;
+module.exports = app;
 

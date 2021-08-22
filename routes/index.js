@@ -3,11 +3,5 @@ const router = express.Router();
 
 const person = require('./person');
 
-router.get('/', (req, res) => {
-    res.send({
-        status: 'success',
-        message: 'oke'
-
-    })
-})
+router.use('/person', person);
 module.exports = router;
