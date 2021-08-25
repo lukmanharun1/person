@@ -4,9 +4,9 @@ const getAll = async (req, res, next) => {
     try {
         const person = await Person.findAll();
         if (person.length <= 0) {
-            res.send({
+            res.status(404).send({
                 message: 'person not found'
-            }, 404);
+            });
         }
         res.status(200).send({
             status: 'success',
@@ -42,7 +42,7 @@ const findById = async (req, res, next) => {
         const { id } = req.params;
         const findPersonById = await Person.findByPk(id);
         if (!findPersonById) {
-            res.status(400).send({
+            res.status(404).send({
                 status: 'error',
                 message: `Person with id ${id} not found`
             });
@@ -67,7 +67,7 @@ const update = async (req, res, next) => {
             }
         });
         if (!findPersonById) {
-            res.status(400).send({
+            res.status(404).send({
                 status: 'error',
                 message: `Person with id ${id} not found`
             });
@@ -92,9 +92,36 @@ const update = async (req, res, next) => {
         next(error);
     }
 }
+
+const destroy = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const findPersonById = await Person.findByPk(id);
+        if (!findPersonById) {
+            res.status(404).send({
+                status: 'error',
+                message: `person with id ${id} not found`          
+            })
+        }
+        const deletePerson = findPersonById.destroy();
+        if (!deletePerson) {
+            res.status(503).send({
+                status: 'error',
+                message: `person with id ${id} failed delete`
+            });
+        }
+        res.status(200).send({
+            status: 'success',
+            message: `person with id ${id} deleted`
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
     getAll,
     create,
     findById,
-    update
+    update,
+    destroy
 }

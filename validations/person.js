@@ -45,8 +45,15 @@ const update = () => [
         .isLength({ min: 20 })
 ]
 
+const destroy = () => [
+    param('id')
+        .notEmpty()
+        .isInt()
+]
+
 module.exports = {
     create,
     findById,
-    update
+    update,
+    destroy
 }
