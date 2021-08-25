@@ -8,10 +8,10 @@ const getAll = async (req, res, next) => {
                 message: 'person not found'
             }, 404);
         }
-        res.send({
+        res.status(200).send({
             status: 'success',
             data: person
-        }, 200);
+        });
     } catch (error) {
         next(error);
     }
@@ -23,15 +23,15 @@ const create = async (req, res, next) => {
         const dataCreate = { name, age, gender, address };
         const createPerson = await Person.create(dataCreate);
         if (!createPerson) {
-            res.send({
+            res.status(400).send({
                 status: 'error',
                 message: 'Person failed created'
-            }, 500);
+            });
         }
-        res.send({
+        res.status(201).send({
             status: 'success',
             data: createPerson
-        }, 201);
+        });
     } catch (error) {
         next(error);
     }
@@ -42,12 +42,12 @@ const findById = async (req, res, next) => {
         const { id } = req.params;
         const findPersonById = await Person.findByPk(id);
         if (!findPersonById) {
-            res.send({
+            res.status(400).send({
                 status: 'error',
                 message: `Person with id ${id} not found`
             });
         }
-        res.send({
+        res.status(200).send({
             status: 'success',
             data: findPersonById
         });
@@ -56,8 +56,45 @@ const findById = async (req, res, next) => {
         next(error);
     }
 }
+
+const update = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, age, gender, address } = req.body;
+        const findPersonById = await Person.findOne({
+            where: {
+                id
+            }
+        });
+        if (!findPersonById) {
+            res.status(400).send({
+                status: 'error',
+                message: `Person with id ${id} not found`
+            });
+        }
+        if (name) findPersonById.name = name;
+        if (age) findPersonById.age = age;
+        if (gender) findPersonById.gender = gender;
+        if (address) findPersonById.address = address;
+        const updatePerson = await findPersonById.save();
+        if (!updatePerson) {
+            res.status(400).send({
+                status: 'error',
+                message: `data person with id ${id} failed update`
+            });
+        }
+        res.status(200).send({
+            status: 'success',
+            data: updatePerson
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
     getAll,
     create,
-    findById
+    findById,
+    update
 }

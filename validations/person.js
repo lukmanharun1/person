@@ -18,12 +18,35 @@ const create = () => [
 
 const findById = () => [
     param('id')
-        .optional()
         .notEmpty()
         .isInt()
 ];
 
+const update = () => [
+    param('id')
+        .notEmpty()
+        .isInt(),
+        body('name')
+        .optional()
+        .notEmpty()
+        .isString(),
+    body('age')
+        .optional()
+        .notEmpty()
+        .isInt(),
+    body('gender')
+        .optional()
+        .notEmpty()
+        .isIn(['female', 'male']),
+    body('address')
+        .optional()
+        .notEmpty()
+        .isString()
+        .isLength({ min: 20 })
+]
+
 module.exports = {
     create,
-    findById
+    findById,
+    update
 }

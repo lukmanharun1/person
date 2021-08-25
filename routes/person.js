@@ -7,4 +7,5 @@ const validation = require('../validations/person');
 router.get('/', controller.getAll);
 router.post('/', validation.create(), validate, controller.create);
 router.get('/:id', validation.findById(), validate, controller.findById);
+router.put('/:id', validation.update(), validate, controller.update);
 module.exports = router;
