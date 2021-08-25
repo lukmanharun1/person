@@ -31,13 +31,33 @@ const create = async (req, res, next) => {
         res.send({
             status: 'success',
             data: createPerson
+        }, 201);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const findById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const findPersonById = await Person.findByPk(id);
+        if (!findPersonById) {
+            res.send({
+                status: 'error',
+                message: `Person with id ${id} not found`
+            });
+        }
+        res.send({
+            status: 'success',
+            data: findPersonById
         });
-        
+
     } catch (error) {
         next(error);
     }
 }
 module.exports = {
     getAll,
-    create
+    create,
+    findById
 }
