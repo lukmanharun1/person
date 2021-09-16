@@ -1,4 +1,19 @@
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
+
+const getAll = () => [
+    query('name')
+        .optional()
+        .isString(),
+    query('age')
+        .optional()
+        .isInt({ min: 1 }),
+    query('gender')
+        .optional()
+        .isIn(['female', 'male']),
+    query('address')
+        .optional()
+        .isString(),
+];
 
 const create = () => [
     body('name')
@@ -52,6 +67,7 @@ const destroy = () => [
 ]
 
 module.exports = {
+    getAll,
     create,
     findById,
     update,

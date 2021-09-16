@@ -1,8 +1,20 @@
-const { Person } = require('../models')
+const { Person, Sequelize } = require('../models')
 
 const getAll = async (req, res, next) => {
     try {
-        const person = await Person.findAll();
+        const where = {};
+        // query params
+        const { name, age, gender, address } = req.query;
+        if (name) where.name = { [Sequelize.Op.like]: `%${name}%` }
+        if (age) where.age = { [Sequelize.Op.eq]: age }
+        if (gender) where.gender = { [Sequelize.Op.eq]: gender }
+        if (address) where.address = { [Sequelize.Op.like]: `%${address}%` }
+
+        const person = await Person.findAll({
+            where: {
+                ...where
+            }
+        });
         if (person.length <= 0) {
             res.status(404).send({
                 message: 'person not found'
