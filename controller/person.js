@@ -1,28 +1,40 @@
 const { Person, Sequelize } = require('../models')
 
+const { pagination } = require('../helpers/pagination');
 const getAll = async (req, res, next) => {
     try {
         const where = {};
         // query params
         const { name, age, gender, address } = req.query;
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const per_page = req.query.per_page ? parseInt(req.query.per_page) : 1;
         if (name) where.name = { [Sequelize.Op.like]: `%${name}%` }
         if (age) where.age = { [Sequelize.Op.eq]: age }
         if (gender) where.gender = { [Sequelize.Op.eq]: gender }
         if (address) where.address = { [Sequelize.Op.like]: `%${address}%` }
-
-        const person = await Person.findAll({
-            where: {
-                ...where
-            }
+        
+        const { count, rows } = await Person.findAndCountAll({
+            where,
+            offset: (page - 1) * page,
+            limit: per_page,
+            distinct: true,
+            order: [['name', 'ASC']]
         });
-        if (person.length <= 0) {
+        const result = pagination({
+            data: rows,
+            count,
+            page,
+            per_page
+        });
+
+        if (count <= 0) {
             res.status(404).send({
                 message: 'person not found'
             });
         }
         res.status(200).send({
             status: 'success',
-            data: person
+            data: result
         });
     } catch (error) {
         next(error);

@@ -13,6 +13,12 @@ const getAll = () => [
     query('address')
         .optional()
         .isString(),
+    query('page')
+        .optional()
+        .isInt({ min: 1 }),
+    query('per_page')
+        .optional()
+        .isInt({ min: 1 })
 ];
 
 const create = () => [
