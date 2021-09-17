@@ -22,16 +22,19 @@ const getAll = () => [
 ];
 
 const create = () => [
-    body('name')
+    body('data')
+        .notEmpty()
+        .isArray(),
+    body('data.*.name')
         .notEmpty()
         .isString(),
-    body('age')
+    body('data.*.age')
         .notEmpty()
         .isInt(),
-    body('gender')
+    body('data.*.gender')
         .notEmpty()
         .isIn(['female', 'male']),
-    body('address')
+    body('data.*.address')
         .notEmpty()
         .isString()
         .isLength({ min: 20 })

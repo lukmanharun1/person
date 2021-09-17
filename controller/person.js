@@ -43,9 +43,8 @@ const getAll = async (req, res, next) => {
 
 const create = async (req, res, next) => {
     try {
-        const { name, age, gender, address } = req.body;
-        const dataCreate = { name, age, gender, address };
-        const createPerson = await Person.create(dataCreate);
+        const { data } = req.body;
+        const createPerson = await Person.bulkCreate(data);
         if (!createPerson) {
             res.status(400).send({
                 status: 'error',
