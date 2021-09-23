@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Person.init({
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false
+    },
     name: DataTypes.STRING(128),
     age: DataTypes.INTEGER,
     gender: DataTypes.ENUM('female', 'male'),

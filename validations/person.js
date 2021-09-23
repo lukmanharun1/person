@@ -43,14 +43,14 @@ const create = () => [
 const findById = () => [
     param('id')
         .notEmpty()
-        .isInt()
+        .isUUID()
 ];
 
 const update = () => [
     param('id')
         .notEmpty()
-        .isInt(),
-        body('name')
+        .isUUID(),
+    body('name')
         .optional()
         .notEmpty()
         .isString(),
@@ -72,7 +72,7 @@ const update = () => [
 const destroy = () => [
     param('id')
         .notEmpty()
-        .isInt()
+        .isUUID()
 ]
 
 module.exports = {
