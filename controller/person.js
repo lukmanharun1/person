@@ -13,7 +13,7 @@ const getAll = async (req, res, next) => {
         if (age) where.age = { [Sequelize.Op.eq]: age }
         if (gender) where.gender = { [Sequelize.Op.eq]: gender }
         if (address) where.address = { [Sequelize.Op.like]: `%${address}%` }
-        
+
         const { count, rows } = await Person.findAndCountAll({
             where,
             offset: (page - 1) * page,
@@ -139,7 +139,114 @@ const update = async (req, res, next) => {
             status: 'success',
             data: updatePerson
         });
-        
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+const multipleCreateUpdateDelete = async (req, res, next) => {
+    try {
+        const { created, updated, deleted } = req.body;
+        const response = {
+            status: 'success',
+            data: {
+                created: null,
+                updated: null,
+                deleted: null,
+            }
+        }
+        // create transaction
+        const transaction = await t.create();
+        if (!transaction.status && transaction.error) {
+            throw transaction.error;
+        }
+        // create person
+        if (created) {
+            const createPerson = await Person.bulkCreate(created, { transaction: transaction.data });
+            if (!createPerson) {
+                // rollback transaction
+                await t.rollback(transaction.data);
+                res.status(400).send({
+                    status: 'error',
+                    message: 'Person failed created'
+                });
+            }
+            response.data.created = createPerson;
+        }
+
+        // update person
+        if (updated) {
+            const updatePersons = await Promise.all(updated.map(async person => {
+                const { id, name, age, gender, address } = person;
+
+                // check id person
+                const findPerson = await Person.findByPk(id, { transaction: transaction.data });
+                if (!findPerson) {
+                    // rollback transaction
+                    await t.rollback(transaction.data);
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'Person not found and failed to updated'
+                    });
+                }
+                // update person
+                if (name) findPerson.name = name;
+                if (age) findPerson.age = age;
+                if (gender) findPerson.gender = gender;
+                if (address) findPerson.address = address;
+                const updatePerson = await findPerson.save({ transaction: transaction.data });
+                if (!updatePerson) {
+                    // rollback transaction
+                    await t.rollback(transaction.data);
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'Person failed to updated'
+                    });
+                }
+                return updatePerson;
+            }));
+            response.data.updated = updatePersons;
+        }
+
+        // delete person
+        if (deleted) {
+            const deletePersons = await Promise.all(deleted.map(async person => {
+                // check id person
+                const findPerson = await Person.findByPk(person.id, { transaction: transaction.data });
+                if (!findPerson) {
+                    // rollback transaction
+                    await t.rollback(transaction.data);
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'Person not found and failed to deleted'
+                    });
+                }
+                // delete person
+                const deletePerson = await findPerson.destroy({ transaction: transaction.data });
+                if (!deletePerson) {
+                    // rollback transaction
+                    await t.rollback(transaction.data);
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'failed to deleted'
+                    });
+                }
+                return {
+                    message: 'Person deleted successfully'
+                }
+
+            }));
+            response.data.deleted = deletePersons;
+        }
+
+        // commit transaction
+        const commit = await t.commit(transaction.data);
+        if (commit.status && commit.error) {
+            throw commit.error;
+        }
+        res.status(200).send(response);
+
     } catch (error) {
         next(error);
     }
@@ -159,7 +266,7 @@ const destroy = async (req, res, next) => {
             await t.rollback(transaction.data);
             res.status(404).send({
                 status: 'error',
-                message: `person with id ${id} not found`          
+                message: `person with id ${id} not found`
             })
         }
         const deletePerson = await findPersonById.destroy({ transaction: transaction.data });
@@ -189,5 +296,6 @@ module.exports = {
     create,
     findById,
     update,
-    destroy
+    multipleCreateUpdateDelete,
+    destroy,
 }

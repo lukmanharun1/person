@@ -69,6 +69,56 @@ const update = () => [
         .isLength({ min: 20 })
 ]
 
+const multipleCreateUpdateDelete = () => [
+    body('created')
+        .optional()
+        .isArray(),
+    body('created.*.name')
+        .notEmpty()
+        .isString(),
+    body('created.*.age')
+        .notEmpty()
+        .isInt(),
+    body('created.*.gender')
+        .notEmpty()
+        .isIn(['female', 'male']),
+    body('created.*.address')
+        .notEmpty()
+        .isString()
+        .isLength({ min: 20 }),
+
+    body('updated')
+        .optional()
+        .isArray(),
+    body('updated.*.id')
+        .notEmpty()
+        .isUUID(),
+    body('updated.*.name')
+        .optional()
+        .notEmpty()
+        .isString(),
+    body('updated.*.age')
+        .optional()
+        .notEmpty()
+        .isInt(),
+    body('updated.*.gender')
+        .optional()
+        .notEmpty()
+        .isIn(['female', 'male']),
+    body('updated.*.address')
+        .optional()
+        .notEmpty()
+        .isString()
+        .isLength({ min: 20 }),
+
+    body('deleted')
+        .optional()
+        .isArray(),
+    body('deleted.*.id')
+        .notEmpty()
+        .isUUID()
+]
+
 const destroy = () => [
     param('id')
         .notEmpty()
@@ -80,5 +130,6 @@ module.exports = {
     create,
     findById,
     update,
+    multipleCreateUpdateDelete,
     destroy
 }
