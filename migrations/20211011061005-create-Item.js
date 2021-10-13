@@ -5,9 +5,8 @@ module.exports = {
     await queryInterface.createTable('Item', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID
       },
       person_id: {
         type: Sequelize.UUID,
@@ -19,6 +18,14 @@ module.exports = {
       price: {
         type: Sequelize.INTEGER,
         allowNull: false
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
       }
     });
   },

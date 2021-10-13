@@ -1,4 +1,4 @@
-const { Person, Sequelize } = require('../models')
+const { Person, Image, Item, Sequelize } = require('../models')
 
 const t = require('../helpers/transaction');
 const { pagination } = require('../helpers/pagination');
@@ -19,6 +19,15 @@ const getAll = async (req, res, next) => {
             offset: (page - 1) * page,
             limit: per_page,
             distinct: true,
+            include: [
+                {
+                    model: Image,
+                },
+                {
+                    model: Item,
+                }
+
+            ],
             order: [['name', 'ASC']]
         });
         const result = pagination({
@@ -77,7 +86,17 @@ const create = async (req, res, next) => {
 const findById = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const findPersonById = await Person.findByPk(id);
+        const findPersonById = await Person.findByPk(id, {
+            include: [
+                {
+                    model: Image,
+                },
+                {
+                    model: Item,
+                }
+
+            ],
+        });
         if (!findPersonById) {
             res.status(404).send({
                 status: 'error',
